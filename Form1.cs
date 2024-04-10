@@ -18,7 +18,7 @@ namespace KolejkowanieWydan
         int month, year;
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["GaskaConnectionString"].ConnectionString;
         public static string staticMonth, staticYear;
-        public static List<WydaniaCount> wydaniaCounts = new List<WydaniaCount>();
+        public static List<Wydanie> wydania = new List<Wydanie>();
         public Form1()
         {
             InitializeComponent();
@@ -66,12 +66,16 @@ namespace KolejkowanieWydan
 
         private void PreviousButton_Click(object sender, EventArgs e)
         {
-            DisplayDays(month--);
+            month--;
+            CountWydania(month);
+            DisplayDays(month);
         }
 
         private void NextButton_Click(object sender, EventArgs e)
         {
-            DisplayDays(month++);
+            month++;
+            CountWydania(month);
+            DisplayDays(month);
         }
 
         private void CountWydania(int month)
@@ -79,23 +83,35 @@ namespace KolejkowanieWydan
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                string query = $@"Select 
-                count(*) as count
-                ,convert(date,Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) as date
-                from cdn.Atrybuty
-				join cdn.TraNag on Atr_ObiNumer = TrN_GIDNumer and Atr_ObiTyp = TrN_GIDTyp
-                where Atr_AtkId = 375
-				and TrN_Waga > 900
-				and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
-                group by Atr_Wartosc";
+                string query = $@"SELECT STUFF((select ',' + TrN_DokumentObcy
+FROM cdn.Atrybuty USA
+JOIN cdn.TraNag US ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
+JOIN cdn.KntKarty USAA ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
+WHERE Atr_AtkId = 375
+and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
+and USAA.Knt_Akronim = SSSA.Knt_Akronim
+and USA.Atr_Wartosc = SSA.Atr_Wartosc
+FOR XML PATH ('')), 1, 1, '') AS [Numer],
+sum(TrN_Waga) as [Waga],
+Knt_Akronim AS [Akronim],
+CONVERT(date, DATEADD(DAY, CONVERT(int, Atr_Wartosc), '18001228')) AS [Date]
+FROM cdn.Atrybuty SSA
+JOIN cdn.TraNag SS ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
+JOIN cdn.KntKarty SSSA ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
+WHERE Atr_AtkId = 375
+and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
+group by Knt_Akronim, Atr_Wartosc
+having sum(TrN_Waga) > 900";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    wydaniaCounts.Add(new WydaniaCount(
-                        (int)reader["count"]
-                        , reader["date"].ToString()
+                    wydania.Add(new Wydanie(
+                         reader["Numer"].ToString()
+                        ,Convert.ToDecimal(reader["Waga"].ToString())
+                        , reader["Akronim"].ToString()
+                        , reader["Date"].ToString()
                         ));
                 }
                 reader.Dispose();

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SqlClient;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -30,7 +29,6 @@ namespace KolejkowanieWydan
 
         public void Days(int numday)
         {
-
             daysLabel.Text = numday.ToString("D2") + "";
 
             fullDate = $"{Form1.staticYear}/{Form1.staticMonth}/{daysLabel.Text}";
@@ -44,29 +42,30 @@ namespace KolejkowanieWydan
 
         private void UserControlDays_Click(object sender, EventArgs e)
         {
+            List<Wydanie> foundWydania = Form1.wydania
+                                        .Where(w => w.Date == $"{daysLabel.Text}.{Form1.staticMonth}.{Form1.staticYear} 00:00:00")
+                                        .Distinct()
+                                        .ToList();
             staticDay = daysLabel.Text;
-            timer1.Start();
-            EventForm eventForm = new EventForm(connectionString);
+
+            EventsForm eventForm = new EventsForm(foundWydania);
             eventForm.Show();
         }
 
         private void DisplayEvent()
         {
-            WydaniaCount foundWydania = Form1.wydaniaCounts.FirstOrDefault(w => w.date == $"{daysLabel.Text}.{Form1.staticMonth}.{Form1.staticYear} 00:00:00");
-
-            if (foundWydania != null)
-            {
-                eventLabel.Text = $"Liczba wydań: {foundWydania.count}";
-            }
-            else
-            {
-                eventLabel.Text = "Liczba wydań: 0";
-            }
+            int countForDate = Form1.wydania.Count(w => w.Date == $"{daysLabel.Text}.{Form1.staticMonth}.{Form1.staticYear} 00:00:00");
+            eventLabel.Text = $"Liczba wydań: {countForDate}";
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void UserControlDays_MouseEnter(object sender, EventArgs e)
         {
-            DisplayEvent();
+            this.BackColor = Color.LightGray;
+        }
+
+        private void UserControlDays_MouseLeave(object sender, EventArgs e)
+        {
+            this.BackColor = Color.White;
         }
     }
 }

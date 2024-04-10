@@ -6,15 +6,19 @@ using System.Threading.Tasks;
 
 namespace KolejkowanieWydan
 {
-    public class WydaniaCount
+    public class Wydanie
     {
-        public int count;
-        public string date;
+        public string Number;
+        public decimal Wage;
+        public string Acronym;
+        public string Date;
 
-        public WydaniaCount(int count, string date)
+        public Wydanie(string number, decimal wage, string acronym, string date)
         {
-            this.count = count;
-            this.date = date;
+            this.Number = number;
+            this.Wage = wage;
+            this.Acronym = acronym;
+            this.Date = date;
         }
     }
 }

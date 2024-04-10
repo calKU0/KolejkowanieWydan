@@ -1,6 +1,6 @@
 ﻿namespace KolejkowanieWydan
 {
-    partial class EventForm
+    partial class AddEventForm
     {
         /// <summary>
         /// Required designer variable.

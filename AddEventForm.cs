@@ -12,10 +12,10 @@ using System.Windows.Forms;
 
 namespace KolejkowanieWydan
 {
-    public partial class EventForm : Form
+    public partial class AddEventForm : Form
     {
         private readonly string connectionString;
-        public EventForm(string connectionString)
+        public AddEventForm(string connectionString)
         {
             InitializeComponent();
             this.connectionString = connectionString;

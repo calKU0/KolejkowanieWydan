@@ -28,10 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.daysLabel = new System.Windows.Forms.Label();
             this.eventLabel = new System.Windows.Forms.Label();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // daysLabel
@@ -43,6 +41,8 @@
             this.daysLabel.Size = new System.Drawing.Size(32, 22);
             this.daysLabel.TabIndex = 0;
             this.daysLabel.Text = "00";
+            this.daysLabel.MouseEnter += new System.EventHandler(this.UserControlDays_MouseEnter);
+            this.daysLabel.MouseLeave += new System.EventHandler(this.UserControlDays_MouseLeave);
             // 
             // eventLabel
             // 
@@ -51,10 +51,8 @@
             this.eventLabel.Name = "eventLabel";
             this.eventLabel.Size = new System.Drawing.Size(165, 24);
             this.eventLabel.TabIndex = 0;
-            // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.eventLabel.MouseEnter += new System.EventHandler(this.UserControlDays_MouseEnter);
+            this.eventLabel.MouseLeave += new System.EventHandler(this.UserControlDays_MouseLeave);
             // 
             // UserControlDays
             // 
@@ -67,6 +65,8 @@
             this.Size = new System.Drawing.Size(171, 105);
             this.Load += new System.EventHandler(this.UserControlDay_Load);
             this.Click += new System.EventHandler(this.UserControlDays_Click);
+            this.MouseEnter += new System.EventHandler(this.UserControlDays_MouseEnter);
+            this.MouseLeave += new System.EventHandler(this.UserControlDays_MouseLeave);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -76,6 +76,5 @@
 
         private System.Windows.Forms.Label daysLabel;
         private System.Windows.Forms.Label eventLabel;
-        private System.Windows.Forms.Timer timer1;
     }
 }
