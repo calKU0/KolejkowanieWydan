@@ -16,6 +16,7 @@ namespace KolejkowanieWydan
     public partial class Form1 : Form
     {
         int month, year;
+        private HashSet<int> monthsOpened = new HashSet<int>();
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["GaskaConnectionString"].ConnectionString;
         public static string staticMonth, staticYear;
         public static List<Wydanie> wydania = new List<Wydanie>();
@@ -30,7 +31,11 @@ namespace KolejkowanieWydan
             month = now.Month;
             year = now.Year;
 
+            //Opening queries for 3 months at start for better optimalization
             CountWydania(month);
+            CountWydania(month--);
+            CountWydania(month++);
+
             DisplayDays(month);
         }
 
@@ -80,6 +85,10 @@ namespace KolejkowanieWydan
 
         private void CountWydania(int month)
         {
+            if (monthsOpened.Contains(month))
+            {
+                return;
+            }
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
@@ -116,6 +125,7 @@ having sum(TrN_Waga) > 900";
                 }
                 reader.Dispose();
                 cmd.Dispose();
+                monthsOpened.Add(month);
             }
         }
     }
