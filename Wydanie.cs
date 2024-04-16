@@ -12,13 +12,14 @@ namespace KolejkowanieWydan
         public decimal Wage;
         public string Acronym;
         public string Date;
-
-        public Wydanie(string number, decimal wage, string acronym, string date)
+        public string Courier;
+        public Wydanie(string number, decimal wage, string acronym, string date, string courier)
         {
             this.Number = number;
             this.Wage = wage;
             this.Acronym = acronym;
             this.Date = date;
+            Courier = courier;
         }
     }
 }

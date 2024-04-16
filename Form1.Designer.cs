@@ -28,9 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.daycontainer = new System.Windows.Forms.FlowLayoutPanel();
-            this.nextButton = new System.Windows.Forms.Button();
-            this.previousButton = new System.Windows.Forms.Button();
             this.mondayLabel = new System.Windows.Forms.Label();
             this.tuesdayLabel = new System.Windows.Forms.Label();
             this.wednesdayLabel = new System.Windows.Forms.Label();
@@ -39,34 +38,16 @@
             this.saturdayLabel = new System.Windows.Forms.Label();
             this.sundayLabel = new System.Windows.Forms.Label();
             this.dateLabel = new System.Windows.Forms.Label();
+            this.previousButton = new System.Windows.Forms.Button();
+            this.nextButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // daycontainer
             // 
             this.daycontainer.Location = new System.Drawing.Point(12, 98);
             this.daycontainer.Name = "daycontainer";
-            this.daycontainer.Size = new System.Drawing.Size(1241, 688);
+            this.daycontainer.Size = new System.Drawing.Size(1241, 613);
             this.daycontainer.TabIndex = 0;
-            // 
-            // nextButton
-            // 
-            this.nextButton.Location = new System.Drawing.Point(1173, 792);
-            this.nextButton.Name = "nextButton";
-            this.nextButton.Size = new System.Drawing.Size(75, 23);
-            this.nextButton.TabIndex = 1;
-            this.nextButton.Text = "Następny";
-            this.nextButton.UseVisualStyleBackColor = true;
-            this.nextButton.Click += new System.EventHandler(this.NextButton_Click);
-            // 
-            // previousButton
-            // 
-            this.previousButton.Location = new System.Drawing.Point(1092, 792);
-            this.previousButton.Name = "previousButton";
-            this.previousButton.Size = new System.Drawing.Size(75, 23);
-            this.previousButton.TabIndex = 1;
-            this.previousButton.Text = "Poprzedni";
-            this.previousButton.UseVisualStyleBackColor = true;
-            this.previousButton.Click += new System.EventHandler(this.PreviousButton_Click);
             // 
             // mondayLabel
             // 
@@ -143,17 +124,42 @@
             // dateLabel
             // 
             this.dateLabel.Font = new System.Drawing.Font("Montserrat", 17.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.dateLabel.Location = new System.Drawing.Point(317, 9);
+            this.dateLabel.Location = new System.Drawing.Point(469, 9);
             this.dateLabel.Name = "dateLabel";
-            this.dateLabel.Size = new System.Drawing.Size(629, 49);
+            this.dateLabel.Size = new System.Drawing.Size(312, 49);
             this.dateLabel.TabIndex = 2;
             this.dateLabel.Text = "MONTH YEAR";
             this.dateLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // previousButton
+            // 
+            this.previousButton.BackColor = System.Drawing.Color.Transparent;
+            this.previousButton.Image = ((System.Drawing.Image)(resources.GetObject("previousButton.Image")));
+            this.previousButton.Location = new System.Drawing.Point(1038, 772);
+            this.previousButton.Name = "previousButton";
+            this.previousButton.Size = new System.Drawing.Size(102, 43);
+            this.previousButton.TabIndex = 1;
+            this.previousButton.UseVisualStyleBackColor = false;
+            this.previousButton.Click += new System.EventHandler(this.PreviousButton_Click);
+            // 
+            // nextButton
+            // 
+            this.nextButton.BackColor = System.Drawing.Color.Transparent;
+            this.nextButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
+            this.nextButton.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.nextButton.Image = ((System.Drawing.Image)(resources.GetObject("nextButton.Image")));
+            this.nextButton.Location = new System.Drawing.Point(1146, 772);
+            this.nextButton.Name = "nextButton";
+            this.nextButton.Size = new System.Drawing.Size(102, 43);
+            this.nextButton.TabIndex = 1;
+            this.nextButton.UseVisualStyleBackColor = false;
+            this.nextButton.Click += new System.EventHandler(this.NextButton_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(1260, 827);
             this.Controls.Add(this.sundayLabel);
             this.Controls.Add(this.saturdayLabel);
@@ -171,6 +177,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 

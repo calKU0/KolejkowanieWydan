@@ -34,6 +34,7 @@
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.label1 = new System.Windows.Forms.Label();
             this.number = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.courier = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.wage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.acronym = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -56,12 +57,14 @@
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.number,
+            this.courier,
             this.wage,
             this.acronym});
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Montserrat", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(3);
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
@@ -78,6 +81,7 @@
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.RowTemplate.Height = 30;
             this.dataGridView1.Size = new System.Drawing.Size(776, 390);
             this.dataGridView1.TabIndex = 0;
             // 
@@ -97,11 +101,17 @@
             this.number.HeaderText = "Numer";
             this.number.Name = "number";
             this.number.ReadOnly = true;
-            this.number.Width = 88;
+            // 
+            // courier
+            // 
+            this.courier.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.courier.HeaderText = "Kurier";
+            this.courier.Name = "courier";
+            this.courier.ReadOnly = true;
             // 
             // wage
             // 
-            this.wage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.wage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.wage.HeaderText = "Waga";
             this.wage.Name = "wage";
             this.wage.ReadOnly = true;
@@ -135,6 +145,7 @@
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.DataGridViewTextBoxColumn number;
+        private System.Windows.Forms.DataGridViewTextBoxColumn courier;
         private System.Windows.Forms.DataGridViewTextBoxColumn wage;
         private System.Windows.Forms.DataGridViewTextBoxColumn acronym;
     }

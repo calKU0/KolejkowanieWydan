@@ -8,10 +8,11 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>KolejkowanieWydan</RootNamespace>
     <AssemblyName>KolejkowanieWydan</AssemblyName>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -73,6 +74,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="UserControlBlank.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -85,7 +91,7 @@
     <Compile Include="UserControlDays.Designer.cs">
       <DependentUpon>UserControlDays.cs</DependentUpon>
     </Compile>
-    <Compile Include="WydaniaCount.cs" />
+    <Compile Include="Wydanie.cs" />
     <EmbeddedResource Include="AddEventForm.resx">
       <DependentUpon>AddEventForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -97,13 +103,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="UserControlBlank.resx">
       <DependentUpon>UserControlBlank.cs</DependentUpon>
     </EmbeddedResource>
