@@ -28,7 +28,7 @@ namespace KolejkowanieWydan
 
                 foreach (Wydanie wydanie in Wydania)
                 {
-                    dataGridView1.Rows.Add(wydanie.Number, wydanie.Courier, wydanie.Wage + " kg", wydanie.Acronym);
+                    dataGridView1.Rows.Add(wydanie.Type, wydanie.Number, wydanie.Courier, wydanie.Wage + " kg", wydanie.ProductsCount, wydanie.Acronym);
                 }
             }
             catch (Exception ex)
