@@ -258,6 +258,7 @@ join cdn.TwrKarty with (nolock) on zae_twrnumer = Twr_GIDNumer
 where ZaN_ZamTyp=1280 and Atr_AtkId = 375
 and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
 and not exists (select * from cdn.TraNag where TrN_ZaNNumer = ZaN_GIDNumer)
+and ZaN_Stan in (2,3,4,5)
 group by Knt_Akronim, Atr_Wartosc, ZaN_SpDostawy
 having sum(ZaE_Ilosc * twr_waga) > 900
 
@@ -280,7 +281,30 @@ join cdn.TwrKarty with (nolock) on ImE_TwrNumer = Twr_GIDNumer
 where Atr_AtkId = 348
 and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) >= '2024-04-17'
 and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
-group by Knt_Akronim, Atr_Wartosc, ImN_GIDTyp, ImN_ImNNumer, ImN_ImNRok, ImN_ImNSeria";
+group by Knt_Akronim, Atr_Wartosc, ImN_GIDTyp, ImN_ImNNumer, ImN_ImNRok, ImN_ImNSeria
+
+UNION ALL
+
+SELECT 
+'Wydanie' AS [Type],
+TrN_DokumentObcy AS [Number],
+convert(decimal(15,2), case when sum(distinct TrN_Waga) <> 0.00 then sum(distinct TrN_Waga) else sum(TrE_Ilosc * Twr_Waga) end) as [Wage],
+Knt_Akronim AS [Acronym],
+TrN_SposobDostawy as [Courier],
+WMS.Atr_Wartosc AS [Status],
+COUNT(TrE_TwrNumer) AS [ProductsCount],
+CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, SSA.Atr_Wartosc), '18001228')),104) as [Date]
+FROM cdn.Atrybuty SSA with (nolock)
+JOIN cdn.TraNag SS with (nolock) ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
+JOIN cdn.Atrybuty WMS with (nolock) on TrN_GIDNumer = WMS.Atr_ObiNumer and TrN_GIDTyp = WMS.Atr_ObiTyp and WMS.Atr_AtkId = 355
+JOIN cdn.KntKarty SSSA with (nolock) ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
+JOIN cdn.TraElem with (nolock) on tre_gidnumer = trn_gidnumer
+JOIN cdn.TwrKarty with (nolock) on tre_twrnumer = twr_gidnumer
+JOIN cdn.Atrybuty kosy with(nolock) on kosy.Atr_ObiNumer = TrN_GIDNumer and kosy.Atr_AtkId = 490
+WHERE SSA.Atr_AtkId = 375 and kosy.Atr_Wartosc = 'TAK'
+and convert(date, Dateadd(DAY, convert(int,SSA.Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
+group by Knt_Akronim, SSA.Atr_Wartosc, TrN_SposobDostawy, WMS.Atr_Wartosc, TrN_DokumentObcy
+";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 SqlDataReader reader = cmd.ExecuteReader();
