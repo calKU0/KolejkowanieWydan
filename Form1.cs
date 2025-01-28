@@ -77,7 +77,7 @@ namespace KolejkowanieWydan
             welcomeLabel.Text += $" {ope.Name}";
 
             // Seeding Model Async in order to optimize loading new months
-            await SeedTask(6);
+            await SeedTask(2);
         }
 
         private void DisplayDays(int month)
@@ -140,7 +140,7 @@ namespace KolejkowanieWydan
                 if (ope.CanSeeDelivery)
                 {
                     wydania = Form1.wydania
-                    .Where(w => DateTime.ParseExact(w.Date, "dd.MM.yyyy", CultureInfo.InvariantCulture) >= startDate 
+                    .Where(w => DateTime.ParseExact(w.Date, "dd.MM.yyyy", CultureInfo.InvariantCulture) >= startDate
                         && DateTime.ParseExact(w.Date, "dd.MM.yyyy", CultureInfo.InvariantCulture) <= endDate
                         &&
                         (
@@ -154,7 +154,7 @@ namespace KolejkowanieWydan
                 else
                 {
                     wydania = Form1.wydania
-                    .Where(w => w.Type == "Wydanie" && DateTime.ParseExact(w.Date, "dd.MM.yyyy", CultureInfo.InvariantCulture) >= startDate 
+                    .Where(w => w.Type == "Wydanie" && DateTime.ParseExact(w.Date, "dd.MM.yyyy", CultureInfo.InvariantCulture) >= startDate
                         && DateTime.ParseExact(w.Date, "dd.MM.yyyy", CultureInfo.InvariantCulture) <= endDate &&
                         (
                             (hideRealizedChecked && w.Status != "zrealizowane" && w.Status != "zrealizowane z brakami") ||
@@ -195,135 +195,143 @@ namespace KolejkowanieWydan
 
         private void CountWydania(int month)
         {
+
             if (monthsOpened.Contains(month))
             {
                 return;
             }
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                conn.Open();
-                string query = $@"SELECT 
-'Wydanie' AS [Type],
-STUFF((select ',' + TrN_DokumentObcy
-FROM cdn.Atrybuty USA with (nolock)
-JOIN cdn.TraNag US with (nolock) ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
-JOIN cdn.KntKarty USAA with (nolock) ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
-WHERE Atr_AtkId = 375
-and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
-and USAA.Knt_Akronim = SSSA.Knt_Akronim
-and USA.Atr_Wartosc = SSA.Atr_Wartosc
-FOR XML PATH ('')), 1, 1, '') AS [Number],
-convert(decimal(15,2), case when sum(distinct TrN_Waga) <> 0.00 then sum(distinct TrN_Waga) else sum(TrE_Ilosc * Twr_Waga) end) as [Wage],
-Knt_Akronim AS [Acronym],
-TrN_SposobDostawy as [Courier],
-WMS.Atr_Wartosc AS [Status],
-COUNT(TrE_TwrNumer) AS [ProductsCount],
-CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, SSA.Atr_Wartosc), '18001228')),104) as [Date]
-FROM cdn.Atrybuty SSA with (nolock)
-JOIN cdn.TraNag SS with (nolock) ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
-JOIN cdn.Atrybuty WMS with (nolock) on TrN_GIDNumer = WMS.Atr_ObiNumer and TrN_GIDTyp = WMS.Atr_ObiTyp and WMS.Atr_AtkId = 355
-JOIN cdn.KntKarty SSSA with (nolock) ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
-JOIN cdn.TraElem with (nolock) on tre_gidnumer = trn_gidnumer
-JOIN cdn.TwrKarty with (nolock) on tre_twrnumer = twr_gidnumer
-WHERE SSA.Atr_AtkId = 375
-and convert(date, Dateadd(DAY, convert(int,SSA.Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
-group by Knt_Akronim, SSA.Atr_Wartosc, TrN_SposobDostawy, WMS.Atr_Wartosc
-having case when sum(distinct TrN_Waga) <> 0.00 then sum(distinct TrN_Waga) else sum(TrE_Ilosc * Twr_Waga) end > 900
-
-UNION ALL
-
-SELECT
-'Wydanie' AS [Type],
-STUFF((select ',' + ISNULL(CDN.NumerDokumentuTRN ( CDN.DokMapTypDokumentu (ZaN_GIDTyp,ZaN_ZamTyp,ZaN_Rodzaj),0,0,ZaN_ZamNumer,ZaN_ZamRok,ZaN_ZamSeria),'')
-FROM cdn.Atrybuty USA with (nolock)
-JOIN cdn.ZamNag US with (nolock) ON Atr_ObiNumer = ZaN_GIDNumer AND Atr_ObiTyp = ZaN_GIDTyp
-JOIN cdn.KntKarty USAA with (nolock) ON ZaN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = ZaN_KntTyp
-WHERE Atr_AtkId = 375
-and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
-and USAA.Knt_Akronim = SSSA.Knt_Akronim
-and USA.Atr_Wartosc = SSA.Atr_Wartosc
-FOR XML PATH ('')), 1, 1, '') AS [Number],
-
-convert(decimal(15,2), sum(ZaE_Ilosc * twr_waga)) as [Wage],
-Knt_Akronim AS [Acronym],
-ZaN_SpDostawy AS [Courier],
-'' AS [Status],
-COUNT(ZaE_TwrNumer) AS [ProductsCount],
-CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, Atr_Wartosc), '18001228')),104) AS [Date]
-FROM cdn.Atrybuty SSA with (nolock)
-JOIN cdn.ZamNag SS with (nolock) ON Atr_ObiNumer = ZaN_GIDNumer AND Atr_ObiTyp = ZaN_GIDTyp
-join cdn.ZamElem with (nolock) on ZaN_gidnumer = zae_gidnumer
-JOIN cdn.KntKarty SSSA with (nolock) ON ZaN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = ZaN_KntTyp
-join cdn.TwrKarty with (nolock) on zae_twrnumer = Twr_GIDNumer
-where ZaN_ZamTyp=1280 and Atr_AtkId = 375
-and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
-and not exists (select * from cdn.TraNag where TrN_ZaNNumer = ZaN_GIDNumer)
-and ZaN_Stan in (2,3,4,5)
-group by Knt_Akronim, Atr_Wartosc, ZaN_SpDostawy
-having sum(ZaE_Ilosc * twr_waga) > 900
-
-UNION ALL
-
-SELECT
-'Dostawa' AS [Type],
-ISNULL(CDN.NumerDokumentuTRN(ImN_GIDTyp, 0, 0, ImN_ImNNumer, ImN_ImNRok, ImN_ImNSeria),'') AS [Number],
-convert(decimal(15,2), sum(ImE_Ilosc * Twr_Waga)) as [Wage],
-Knt_Akronim AS [Acronym],
-'' AS [Courier],
-'' AS [Status],
-COUNT(ImE_TwrNumer) AS [ProductsCount],
-CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, Atr_Wartosc), '18001228')),104) AS [Date]
-FROM cdn.Atrybuty with (nolock)
-JOIN cdn.ImpNag with (nolock) ON Atr_ObiNumer = ImN_GIDNumer AND Atr_ObiTyp = ImN_GIDTyp
-join cdn.ImpElem with (nolock) on ImN_GIDNumer = ImE_GIDNumer
-JOIN cdn.KntKarty with (nolock) ON ImN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = ImN_KntTyp
-join cdn.TwrKarty with (nolock) on ImE_TwrNumer = Twr_GIDNumer
-where Atr_AtkId = 348
-and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) >= '2024-04-17'
-and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
-group by Knt_Akronim, Atr_Wartosc, ImN_GIDTyp, ImN_ImNNumer, ImN_ImNRok, ImN_ImNSeria
-
-UNION ALL
-
-SELECT 
-'Wydanie' AS [Type],
-TrN_DokumentObcy AS [Number],
-convert(decimal(15,2), case when sum(distinct TrN_Waga) <> 0.00 then sum(distinct TrN_Waga) else sum(TrE_Ilosc * Twr_Waga) end) as [Wage],
-Knt_Akronim AS [Acronym],
-TrN_SposobDostawy as [Courier],
-WMS.Atr_Wartosc AS [Status],
-COUNT(TrE_TwrNumer) AS [ProductsCount],
-CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, SSA.Atr_Wartosc), '18001228')),104) as [Date]
-FROM cdn.Atrybuty SSA with (nolock)
-JOIN cdn.TraNag SS with (nolock) ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
-JOIN cdn.Atrybuty WMS with (nolock) on TrN_GIDNumer = WMS.Atr_ObiNumer and TrN_GIDTyp = WMS.Atr_ObiTyp and WMS.Atr_AtkId = 355
-JOIN cdn.KntKarty SSSA with (nolock) ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
-JOIN cdn.TraElem with (nolock) on tre_gidnumer = trn_gidnumer
-JOIN cdn.TwrKarty with (nolock) on tre_twrnumer = twr_gidnumer
-JOIN cdn.Atrybuty kosy with(nolock) on kosy.Atr_ObiNumer = TrN_GIDNumer and kosy.Atr_AtkId = 490
-WHERE SSA.Atr_AtkId = 375 and kosy.Atr_Wartosc = 'TAK'
-and convert(date, Dateadd(DAY, convert(int,SSA.Atr_Wartosc), '18001228')) between '2024-{month}-01' and EOMONTH('2024-{month}-15',0)
-group by Knt_Akronim, SSA.Atr_Wartosc, TrN_SposobDostawy, WMS.Atr_Wartosc, TrN_DokumentObcy
-";
-
-                SqlCommand cmd = new SqlCommand(query, conn);
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    wydania.Add(new Wydanie(
-                        reader["Type"].ToString()
-                        , reader["Number"].ToString()
-                        , Convert.ToDecimal(reader["Wage"].ToString())
-                        , reader["Acronym"].ToString()
-                        , reader["Date"].ToString()
-                        , reader["Status"].ToString()
-                        , reader["Courier"].ToString()
-                        , (int)reader["ProductsCount"]
-                        ));
+                    conn.Open();
+                    string query = $@"SELECT 
+    'Wydanie' AS [Type],
+    STUFF((select ',' + TrN_DokumentObcy
+    FROM cdn.Atrybuty USA with (nolock)
+    JOIN cdn.TraNag US with (nolock) ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
+    JOIN cdn.KntKarty USAA with (nolock) ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
+    WHERE Atr_AtkId = 375
+    and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2025-{month}-01' and EOMONTH('2025-{month}-15',0)
+    and USAA.Knt_Akronim = SSSA.Knt_Akronim
+    and USA.Atr_Wartosc = SSA.Atr_Wartosc
+    FOR XML PATH ('')), 1, 1, '') AS [Number],
+    convert(decimal(15,2), case when sum(distinct TrN_Waga) <> 0.00 then sum(distinct TrN_Waga) else sum(TrE_Ilosc * Twr_Waga) end) as [Wage],
+    Knt_Akronim AS [Acronym],
+    TrN_SposobDostawy as [Courier],
+    WMS.Atr_Wartosc AS [Status],
+    COUNT(TrE_TwrNumer) AS [ProductsCount],
+    CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, SSA.Atr_Wartosc), '18001228')),104) as [Date]
+    FROM cdn.Atrybuty SSA with (nolock)
+    JOIN cdn.TraNag SS with (nolock) ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
+    JOIN cdn.Atrybuty WMS with (nolock) on TrN_GIDNumer = WMS.Atr_ObiNumer and TrN_GIDTyp = WMS.Atr_ObiTyp and WMS.Atr_AtkId = 355
+    JOIN cdn.KntKarty SSSA with (nolock) ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
+    JOIN cdn.TraElem with (nolock) on tre_gidnumer = trn_gidnumer
+    JOIN cdn.TwrKarty with (nolock) on tre_twrnumer = twr_gidnumer
+    WHERE SSA.Atr_AtkId = 375
+    and convert(date, Dateadd(DAY, convert(int,SSA.Atr_Wartosc), '18001228')) between '2025-{month}-01' and EOMONTH('2025-{month}-15',0)
+    group by Knt_Akronim, SSA.Atr_Wartosc, TrN_SposobDostawy, WMS.Atr_Wartosc
+    having case when sum(distinct TrN_Waga) <> 0.00 then sum(distinct TrN_Waga) else sum(TrE_Ilosc * Twr_Waga) end > 900
+
+    UNION ALL
+
+    SELECT
+    'Wydanie' AS [Type],
+    STUFF((select ',' + ISNULL(CDN.NumerDokumentuTRN ( CDN.DokMapTypDokumentu (ZaN_GIDTyp,ZaN_ZamTyp,ZaN_Rodzaj),0,0,ZaN_ZamNumer,ZaN_ZamRok,ZaN_ZamSeria),'')
+    FROM cdn.Atrybuty USA with (nolock)
+    JOIN cdn.ZamNag US with (nolock) ON Atr_ObiNumer = ZaN_GIDNumer AND Atr_ObiTyp = ZaN_GIDTyp
+    JOIN cdn.KntKarty USAA with (nolock) ON ZaN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = ZaN_KntTyp
+    WHERE Atr_AtkId = 375
+    and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2025-{month}-01' and EOMONTH('2025-{month}-15',0)
+    and USAA.Knt_Akronim = SSSA.Knt_Akronim
+    and USA.Atr_Wartosc = SSA.Atr_Wartosc
+    FOR XML PATH ('')), 1, 1, '') AS [Number],
+
+    convert(decimal(15,2), sum(ZaE_Ilosc * twr_waga)) as [Wage],
+    Knt_Akronim AS [Acronym],
+    ZaN_SpDostawy AS [Courier],
+    '' AS [Status],
+    COUNT(ZaE_TwrNumer) AS [ProductsCount],
+    CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, Atr_Wartosc), '18001228')),104) AS [Date]
+    FROM cdn.Atrybuty SSA with (nolock)
+    JOIN cdn.ZamNag SS with (nolock) ON Atr_ObiNumer = ZaN_GIDNumer AND Atr_ObiTyp = ZaN_GIDTyp
+    join cdn.ZamElem with (nolock) on ZaN_gidnumer = zae_gidnumer
+    JOIN cdn.KntKarty SSSA with (nolock) ON ZaN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = ZaN_KntTyp
+    join cdn.TwrKarty with (nolock) on zae_twrnumer = Twr_GIDNumer
+    where ZaN_ZamTyp=1280 and Atr_AtkId = 375
+    and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2025-{month}-01' and EOMONTH('2025-{month}-15',0)
+    and (select top 1 Trn_GidNumer from cdn.TraNag where TrN_ZaNNumer = ZaN_GIDNumer) is null
+    and ZaN_Stan in (2,3,4,5)
+    group by Knt_Akronim, Atr_Wartosc, ZaN_SpDostawy
+    having sum(ZaE_Ilosc * twr_waga) > 900
+
+    UNION ALL
+
+    SELECT
+    'Dostawa' AS [Type],
+    ISNULL(CDN.NumerDokumentuTRN(ImN_GIDTyp, 0, 0, ImN_ImNNumer, ImN_ImNRok, ImN_ImNSeria),'') AS [Number],
+    convert(decimal(15,2), sum(ImE_Ilosc * Twr_Waga)) as [Wage],
+    Knt_Akronim AS [Acronym],
+    '' AS [Courier],
+    '' AS [Status],
+    COUNT(ImE_TwrNumer) AS [ProductsCount],
+    CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, Atr_Wartosc), '18001228')),104) AS [Date]
+    FROM cdn.Atrybuty with (nolock)
+    JOIN cdn.ImpNag with (nolock) ON Atr_ObiNumer = ImN_GIDNumer AND Atr_ObiTyp = ImN_GIDTyp
+    join cdn.ImpElem with (nolock) on ImN_GIDNumer = ImE_GIDNumer
+    JOIN cdn.KntKarty with (nolock) ON ImN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = ImN_KntTyp
+    join cdn.TwrKarty with (nolock) on ImE_TwrNumer = Twr_GIDNumer
+    where Atr_AtkId = 348
+    and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) >= '2024-04-17'
+    and convert(date, Dateadd(DAY, convert(int,Atr_Wartosc), '18001228')) between '2025-{month}-01' and EOMONTH('2025-{month}-15',0)
+    group by Knt_Akronim, Atr_Wartosc, ImN_GIDTyp, ImN_ImNNumer, ImN_ImNRok, ImN_ImNSeria
+
+    UNION ALL
+
+    SELECT 
+    'Wydanie' AS [Type],
+    TrN_DokumentObcy AS [Number],
+    convert(decimal(15,2), case when sum(distinct TrN_Waga) <> 0.00 then sum(distinct TrN_Waga) else sum(TrE_Ilosc * Twr_Waga) end) as [Wage],
+    Knt_Akronim AS [Acronym],
+    TrN_SposobDostawy as [Courier],
+    WMS.Atr_Wartosc AS [Status],
+    COUNT(TrE_TwrNumer) AS [ProductsCount],
+    CONVERT(varchar, CONVERT(date, DATEADD(DAY, CONVERT(int, SSA.Atr_Wartosc), '18001228')),104) as [Date]
+    FROM cdn.Atrybuty SSA with (nolock)
+    JOIN cdn.TraNag SS with (nolock) ON Atr_ObiNumer = TrN_GIDNumer AND Atr_ObiTyp = TrN_GIDTyp
+    JOIN cdn.Atrybuty WMS with (nolock) on TrN_GIDNumer = WMS.Atr_ObiNumer and TrN_GIDTyp = WMS.Atr_ObiTyp and WMS.Atr_AtkId = 355
+    JOIN cdn.KntKarty SSSA with (nolock) ON TrN_KntNumer = Knt_GIDNumer AND Knt_GIDTyp = TrN_KntTyp
+    JOIN cdn.TraElem with (nolock) on tre_gidnumer = trn_gidnumer
+    JOIN cdn.TwrKarty with (nolock) on tre_twrnumer = twr_gidnumer
+    JOIN cdn.Atrybuty kosy with(nolock) on kosy.Atr_ObiNumer = TrN_GIDNumer and kosy.Atr_AtkId = 490
+    WHERE SSA.Atr_AtkId = 375 and kosy.Atr_Wartosc = 'TAK'
+    and convert(date, Dateadd(DAY, convert(int,SSA.Atr_Wartosc), '18001228')) between '2025-{month}-01' and EOMONTH('2025-{month}-15',0)
+    group by Knt_Akronim, SSA.Atr_Wartosc, TrN_SposobDostawy, WMS.Atr_Wartosc, TrN_DokumentObcy
+    ";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        wydania.Add(new Wydanie(
+                            reader["Type"].ToString()
+                            , reader["Number"].ToString()
+                            , Convert.ToDecimal(reader["Wage"].ToString())
+                            , reader["Acronym"].ToString()
+                            , reader["Date"].ToString()
+                            , reader["Status"].ToString()
+                            , reader["Courier"].ToString()
+                            , (int)reader["ProductsCount"]
+                            ));
+                    }
+                    reader.Dispose();
+                    cmd.Dispose();
+                    monthsOpened.Add(month);
                 }
-                reader.Dispose();
-                cmd.Dispose();
-                monthsOpened.Add(month);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
         }
         private async Task SeedTask(int count)
@@ -332,8 +340,7 @@ group by Knt_Akronim, SSA.Atr_Wartosc, TrN_SposobDostawy, WMS.Atr_Wartosc, TrN_D
 
             for (int i = 0; i < count; i++)
             {
-                int offset = i - count / 2;
-                tasks[i] = CreateAndStartTask(() => CountWydania(month + offset));
+                tasks[i] = CreateAndStartTask(() => CountWydania(month + i));
             }
 
             await Task.WhenAll(tasks);
