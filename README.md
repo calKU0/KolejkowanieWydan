@@ -3,13 +3,24 @@
 > 💼 **Commercial Project** — part of a private or client-facing initiative.
 
 ## Overview
+
 A simple calendar application developed for the logistics department to manage deliveries and dispatches. This add-on for Comarch ERP XL utilizes its Hydra framework to integrate seamlessly with the ERP system, enhancing scheduling and coordination.
 
 ## Features
+
 - Seamless integration with ERP XL
 - User-friendly interface for scheduling
 - Enhances logistics planning
 
 ## Technologies Used
+
 - **Frameworks:** CDNXL Hydra, .NET Framework
 - **Technologies:** C#, SQL Server
+
+## License
+
+This project is proprietary and confidential. See the [LICENSE](LICENSE) file for more information.
+
+---
+
+© 2025 [calKU0](https://github.com/calKU0)
