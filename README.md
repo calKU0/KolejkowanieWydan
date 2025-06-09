@@ -1,5 +1,7 @@
 # Logistics Calendar
 
+> 💼 **Commercial Project** — part of a private or client-facing initiative.
+
 ## Overview
 A simple calendar application developed for the logistics department to manage deliveries and dispatches. This add-on for Comarch ERP XL utilizes its Hydra framework to integrate seamlessly with the ERP system, enhancing scheduling and coordination.
 
